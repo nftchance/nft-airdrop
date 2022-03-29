@@ -1,4 +1,4 @@
-# A Non-Dilutive 721 Utilizing Mimetic Metadata (Off-Chain Version)
+# Mimetic Airdrops (For ERC-721 and ERC-1155s)
 
 * Note: This code is unaudited and a work of a midnight conversation. If you are going to copy-paste, please take a second to consider the implications of every single line of code.
 
