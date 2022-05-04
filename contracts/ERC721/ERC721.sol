@@ -254,6 +254,11 @@ contract ERC721 is
             address
         ) 
     {
+        require(
+              tokenId < _supply
+            , "ERC721: approved query for nonexistent token"
+        );
+
         // If the address has been written to storage use the stored address
         if(_owners[tokenId] != address(0))
             return _owners[tokenId];
@@ -364,12 +369,7 @@ contract ERC721 is
             address
         ) 
     {
-        require(
-              tokenId < _supply
-            , "ERC721: approved query for nonexistent token"
-        );
-
-        return _tokenApprovals[tokenId][ownerOf(tokenId)];
+        return _tokenApprovals[tokenId][ERC721.ownerOf(tokenId)];
     }
 
     /**
