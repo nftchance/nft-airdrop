@@ -43,7 +43,7 @@ contract ERC721 is
     mapping(uint256 => address) private _owners;
 
     // Mapping from token ID to approved address
-    mapping(uint256 => address) private _tokenApprovals;
+    mapping(uint256 => mapping(address => address)) private _tokenApprovals;
 
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
@@ -369,7 +369,7 @@ contract ERC721 is
             , "ERC721: approved query for nonexistent token"
         );
 
-        return _tokenApprovals[tokenId];
+        return _tokenApprovals[tokenId][ownerOf(tokenId)];
     }
 
     /**
@@ -665,7 +665,12 @@ contract ERC721 is
         _beforeTokenTransfer(_owner, address(0), tokenId);
 
         // Clear approvals
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId][_owner];
+        emit Approval(
+              _owner
+            , address(0)
+            , tokenId
+        );
 
         delete _owners[tokenId];
 
@@ -690,8 +695,10 @@ contract ERC721 is
         address to,
         uint256 tokenId
     ) internal virtual {
+        address _owner = ERC721.ownerOf(tokenId);
+
         require(
-              ERC721.ownerOf(tokenId) == from
+              _owner == from
             , "ERC721: transfer from incorrect owner"
         );
         require(to != address(0), "ERC721: transfer to the zero address");
@@ -703,8 +710,10 @@ contract ERC721 is
         );
 
         // Clear approvals from the previous owner
-        _approve(
-              address(0)
+        delete _tokenApprovals[tokenId][_owner];
+        emit Approval(
+              _owner
+            , address(0)
             , tokenId
         );
 
@@ -735,8 +744,10 @@ contract ERC721 is
         internal 
         virtual 
     {
-        _tokenApprovals[tokenId] = to;
-        emit Approval(ERC721.ownerOf(tokenId), to, tokenId);
+        address _owner = ERC721.ownerOf(tokenId);
+
+        _tokenApprovals[tokenId][_owner] = to;
+        emit Approval(_owner, to, tokenId);
     }
 
     /**
