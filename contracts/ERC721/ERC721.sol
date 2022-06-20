@@ -240,6 +240,9 @@ contract ERC721 is
         if (!hasWritten){
             return parent.balanceOf(_owner) + localBalance;
         }
+        else if (!hasWritten){
+            return parent.balanceOf(_owner);
+        }
         return localBalance;
     }
     /**
