@@ -237,11 +237,8 @@ contract ERC721 is
         uint256 localBalance = _balances[_owner];
         bool hasWritten = _hasWritten[_owner];
         
-        if (localBalance > 0 && !hasWritten){
+        if (!hasWritten){
             return parent.balanceOf(_owner) + localBalance;
-        }
-        else if (!hasWritten){
-            return parent.balanceOf(_owner);
         }
         return localBalance;
     }
