@@ -48,6 +48,11 @@ contract ERC721 is
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
+    // Mapping from owner to first writes
+
+    mapping(address => bool) private _hasWritten;
+    mapping(address => uint256) private _balances;
+
     uint256 internal _supply;
     IERC721 public parent;
 
@@ -148,7 +153,7 @@ contract ERC721 is
             i < _end;
             i++
         ) {
-            console.log(i);
+            //console.log(i);
             emit Transfer(
                   address(0x0)
                 , accounts[index++]
@@ -229,15 +234,17 @@ contract ERC721 is
             , "ERC721: balance query for the zero address"
         );
 
-        for(
-            uint256 i = _supply;
-            i > 0;
-            i--
-        ) {
-            balance++;
+        uint256 localBalance = _balances[_owner];
+        bool hasWritten = _hasWritten[_owner];
+        
+        if (localBalance > 0 && !hasWritten){
+            return parent.balanceOf(_owner) + localBalance;
         }
+        else if (!hasWritten){
+            return parent.balanceOf(_owner);
+        }
+        return localBalance;
     }
-
     /**
      * @notice This function determines the active owner of the airdropped 
      *         token. An address is not written to storage until the token has
@@ -496,7 +503,7 @@ contract ERC721 is
         bytes memory _data
     ) 
         internal 
-        virtual 
+        virtual     
     {
         _transfer(
               from
@@ -711,13 +718,26 @@ contract ERC721 is
 
         // Clear approvals from the previous owner
         delete _tokenApprovals[tokenId][_owner];
+
+        
         emit Approval(
               _owner
             , address(0)
             , tokenId
         );
 
+        if (!_hasWritten[from]){
+            _balances[from] =_balances[from] +  parent.balanceOf(from) - 1;
+            _hasWritten[from] =  true;
+        }
+        else {  
+            --_balances[from];
+        }
+
+        ++_balances[to];
         _owners[tokenId] = to;
+
+
 
         emit Transfer(
               from
