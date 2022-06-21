@@ -234,7 +234,8 @@ contract ERC721 is
             i > 0;
             i--
         ) {
-            balance++;
+            if(ERC721.ownerOf(i) == _owner)
+                balance++;
         }
     }
 
